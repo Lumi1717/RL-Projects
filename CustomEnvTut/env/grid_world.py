@@ -77,4 +77,29 @@ class GridWorldEnv(gym.Env):
         return observation, info
     
     def step(self, action):
+        # Map the action (element of {0,1,2,3}) to the direction we walk in
+        direction = self._action_to_direction[action]
+         
+        # We use `np.clip` to make sure we don't leave the grid
+        self._agent_locaiton = np.clip(self._agent_locaiton + direction, 0, self.size -1)
+
+        # Episode is done if the agent has reached the target
+        terminated = np.array_equal(self._agent_locaiton, self._target_location)
+        # here is where you can make the agent collect x amount of rewards: in think
+        reward = 1 if terminated else 0
+        observation = self._get_obs()
+        info = self._get_info()
+        if self.render_mode == "human":
+           self._render_frame()
+        return observation, reward, terminated, False, info
+    
+    def render(self):
+        return self._render_frame()
+    
+ 
+
+    
+
+
+
         

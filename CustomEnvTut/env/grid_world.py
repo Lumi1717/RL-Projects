@@ -96,9 +96,60 @@ class GridWorldEnv(gym.Env):
     def render(self):
         return self._render_frame()
     
+    def render_frame(self):
+        if self.window is None and self.render == "human":
+            pygame.init()
+            pygame.display.init()
+            self.window = pygame.display.set_mode((self.window_size, self.window_size))
  
+        if self.clock is None and  self.render == "human":
+            self.clock = pygame.time.Clock()
 
+        canvas = pygame.Surface((self.window_size, self.window_size))
+        canvas.fill((255,255,255))
+        pix_sqared_size = (
+            self.window_size / self.size
+        )
+        # First we draw the target
+        pygame.draw.rect(
+            canvas,
+            (255,0,0),
+            pygame.Rect(
+                pix_sqared_size * self._target_location,
+                (pix_sqared_size, pix_sqared_size),
+            ),
+        )
+        
+        # Now we draw the agent
+        pygame.draw.circle(
+            canvas,
+            (0, 0, 255),
+            (self._agent_locaiton + 0.5) * pix_sqared_size,
+            pix_sqared_size /3,
+        )
+        # Now the board
+        for x in range(self.size + 1):
+            pygame.draw.line(
+                canvas,
+                0,
+                (0, pix_sqared_size * x),
+                (self.window_size,pix_sqared_size * x),
+                width = 3,
+            )
+
+            if self.render_mode == "human":
+                self.window.blit(canvas, canvas.get_react())
+                pygame.event.pump()
+                pygame.display.update()
+            else:
+                return np.transpose(
+                    np.array(pygame.Surfarray.pixels3d(canvas)), axes=(1,0,2)
+                )
     
+    def close(self):
+        if self.window is not None:
+            pygame.display.quit()
+            pygame.quit()
 
 
 
